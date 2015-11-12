@@ -44,7 +44,7 @@ module Libreconv
 
     private
     
-    def perform_converstion
+    def perform_conversion
       orig_stdout = $stdout.clone
       $stdout.reopen File.new('/dev/null', 'w')
       Dir.mktmpdir do |target_path|
