@@ -31,6 +31,9 @@ require 'libreconv'
 # This requires that the soffice binary is present in your PATH.
 Libreconv.convert('document.docx', '/Users/ricn/pdf_documents/my_document_as.pdf')
 
+# Converts document.docx to a String containing a PDF document (e.g. for streaming or further processing)
+Libreconv.convert_to_string('document.docx') # => "%PDF-1.4\n..."
+
 # Converts document.docx to pdf and writes the output to the specified path
 # This requires that the soffice binary is present in your PATH.
 Libreconv.convert('document.docx', '/Users/ricn/pdf_documents')
