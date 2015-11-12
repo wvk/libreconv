@@ -10,6 +10,10 @@ module Libreconv
     Converter.new(source, target, soffice_command, convert_to).convert
   end
 
+  def self.convert_to_string(source, soffice_command = nil, convert_to = nil)
+    Converter.new(source, nil, soffice_command, convert_to).convert_to_string
+  end
+
   class Converter
     attr_accessor :soffice_command
 
@@ -27,18 +31,30 @@ module Libreconv
     end
 
     def convert
+      perform_conversion do |target_tmp_file|
+        FileUtils.cp target_tmp_file, @target
+      end
+    end
+    
+    def convert_to_string
+      perform_conversion do |target_tmp_file|
+        File.read target_tmp_file
+      end
+    end
+
+    private
+    
+    def perform_converstion
       orig_stdout = $stdout.clone
       $stdout.reopen File.new('/dev/null', 'w')
-      Dir.mktmpdir { |target_path|
+      Dir.mktmpdir do |target_path|
         pid = Spoon.spawnp(@soffice_command, "--headless", "--convert-to", @convert_to, @source, "--outdir", target_path)
         Process.waitpid(pid)
         $stdout.reopen orig_stdout
         target_tmp_file = "#{target_path}/#{File.basename(@source, ".*")}.#{File.basename(@convert_to, ":*")}"
-        FileUtils.cp target_tmp_file, @target
-      }
+        yield target_tmp_file
+      end
     end
-
-    private
 
     def determine_soffice_command
       unless @soffice_command
